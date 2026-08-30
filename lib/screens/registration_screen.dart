@@ -152,11 +152,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/login');
-                  },
-                  child: const Text('Already have an account? Login'),
+                const Text(
+                  'You only register once. After that you stay signed in on this device.',
+                  style: TextStyle(fontSize: 13, color: Colors.grey),
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),

@@ -12,7 +12,7 @@ A production-ready Flutter application for church communities that allows admins
 - **Analytics**: View user statistics (total, active, admins)
 
 ### For Members
-- **Simple Registration**: Register with name, age, and phone number
+- **One-Time Registration**: Register with name, age, and phone number; the session persists, so there is no login step
 - **Content Viewing**: View all posts shared by admins
 - **Reactions**: React to posts with emojis
 - **Notifications**: Receive push notifications for new posts
@@ -45,7 +45,6 @@ lib/
 │   └── user_provider.dart
 ├── screens/                  # UI screens
 │   ├── registration_screen.dart
-│   ├── login_screen.dart
 │   ├── home_screen.dart
 │   ├── create_post_screen.dart
 │   └── admin_screen.dart
@@ -118,8 +117,8 @@ This app requires Firebase configuration. Please refer to [FIREBASE_SETUP.md](FI
 
 ### For Members
 
-1. **Register**: Sign up with name, age, and phone number
-2. **Login**: Use phone number to log in
+1. **Register**: Sign up once with name, age, and phone number
+2. **Stay Signed In**: The session is stored on the device, so the app opens straight to the feed
 3. **View Posts**: Browse content shared by admins
 4. **React**: Tap the reaction button to respond to posts
 

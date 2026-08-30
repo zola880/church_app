@@ -53,26 +53,6 @@ class AuthService {
     }
   }
 
-  // Login with phone number
-  Future<UserModel?> loginWithPhone(String phoneNumber) async {
-    try {
-      final query = await _firestore
-          .collection('users')
-          .where('phoneNumber', isEqualTo: phoneNumber)
-          .where('isActive', isEqualTo: true)
-          .get();
-
-      if (query.docs.isEmpty) {
-        throw Exception('User not found or inactive');
-      }
-
-      final userDoc = query.docs.first;
-      return UserModel.fromMap(userDoc.data(), userDoc.id);
-    } catch (e) {
-      throw Exception('Login failed: $e');
-    }
-  }
-
   // Get user by ID
   Future<UserModel?> getUserById(String userId) async {
     try {
@@ -103,10 +83,5 @@ class AuthService {
     } catch (e) {
       return false;
     }
-  }
-
-  // Logout
-  Future<void> logout() async {
-    await _auth.signOut();
   }
 }

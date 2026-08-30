@@ -31,16 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               tooltip: 'Admin Panel',
             ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await userProvider.logout();
-              if (mounted) {
-                Navigator.pushReplacementNamed(context, '/login');
-              }
-            },
-            tooltip: 'Logout',
-          ),
         ],
       ),
       body: StreamBuilder(

@@ -174,7 +174,7 @@ flutter run
 
 Test the following:
 - User registration
-- User login
+- Session persistence after app restart
 - Admin posting
 - Member viewing posts
 - Reactions
