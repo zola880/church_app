@@ -16,13 +16,19 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   final _formKey = GlobalKey<FormState>();
   final _contentController = TextEditingController();
   final PostService _postService = PostService();
-  
+
   String _selectedContentType = 'text';
   String? _selectedFilePath;
   String? _selectedFileName;
   bool _isUploading = false;
 
   final ImagePicker _imagePicker = ImagePicker();
+
+  // Premium color palette (matches Registration & Home screens)
+  static const Color _primary = Color(0xFF5B3FBB);
+  static const Color _primaryDark = Color(0xFF2E1A66);
+  static const Color _accentGold = Color(0xFFD4AF37);
+  static const Color _bgLight = Color(0xFFF6F4FB);
 
   @override
   void dispose() {
@@ -98,14 +104,42 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Post created successfully!')),
+            SnackBar(
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: const Color(0xFF2E7D32),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              margin: const EdgeInsets.all(16),
+              content: const Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.white),
+                  SizedBox(width: 12),
+                  Text('Post created successfully!'),
+                ],
+              ),
+            ),
           );
           Navigator.pop(context);
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to create post: $e')),
+            SnackBar(
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: const Color(0xFFC62828),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              margin: const EdgeInsets.all(16),
+              content: Row(
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.white),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text('Failed to create post: $e')),
+                ],
+              ),
+            ),
           );
         }
       } finally {
@@ -116,89 +150,240 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     }
   }
 
+  Widget _sectionLabel(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w700,
+          color: Colors.grey[800],
+          letterSpacing: 0.2,
+        ),
+      ),
+    );
+  }
+
+  IconData _iconForType(String type) {
+    switch (type) {
+      case 'text':
+        return Icons.text_fields;
+      case 'image':
+        return Icons.image_outlined;
+      case 'video':
+        return Icons.videocam_outlined;
+      case 'file':
+        return Icons.attach_file;
+      default:
+        return Icons.text_fields;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create Post'),
+      backgroundColor: _bgLight,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(64),
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [_primaryDark, _primary],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0x33000000),
+                blurRadius: 12,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            iconTheme: const IconThemeData(color: Colors.white),
+            title: const Text(
+              'Create Post',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.2,
+              ),
+            ),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(18.0),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Content Type Selection
-              const Text(
-                'Content Type',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+              _sectionLabel('Content Type'),
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: ['text', 'image', 'video', 'file'].map((type) {
+                    final bool selected = _selectedContentType == type;
+                    return Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedContentType = type;
+                          });
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 220),
+                          curve: Curves.easeOut,
+                          margin: const EdgeInsets.symmetric(horizontal: 3),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            gradient: selected
+                                ? const LinearGradient(
+                                    colors: [_primary, Color(0xFF7C5CE0)],
+                                  )
+                                : null,
+                            color: selected ? null : Colors.transparent,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                _iconForType(type),
+                                size: 20,
+                                color: selected
+                                    ? Colors.white
+                                    : Colors.grey[500],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                type[0].toUpperCase() + type.substring(1),
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: selected
+                                      ? Colors.white
+                                      : Colors.grey[500],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
-              const SizedBox(height: 8),
-              SegmentedButton<String>(
-                segments: const [
-                  ButtonSegment(
-                    value: 'text',
-                    label: Text('Text'),
-                    icon: Icon(Icons.text_fields),
-                  ),
-                  ButtonSegment(
-                    value: 'image',
-                    label: Text('Image'),
-                    icon: Icon(Icons.image),
-                  ),
-                  ButtonSegment(
-                    value: 'video',
-                    label: Text('Video'),
-                    icon: Icon(Icons.videocam),
-                  ),
-                  ButtonSegment(
-                    value: 'file',
-                    label: Text('File'),
-                    icon: Icon(Icons.attach_file),
-                  ),
-                ],
-                selected: {_selectedContentType},
-                onSelectionChanged: (Set<String> newSelection) {
-                  setState(() {
-                    _selectedContentType = newSelection.first;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
               // Media Picker based on content type
               if (_selectedContentType != 'text') ...[
-                ElevatedButton.icon(
-                  onPressed: () {
-                    switch (_selectedContentType) {
-                      case 'image':
-                        _pickImage();
-                        break;
-                      case 'video':
-                        _pickVideo();
-                        break;
-                      case 'file':
-                        _pickFile();
-                        break;
-                      default:
-                        break;
-                    }
-                  },
-                  icon: const Icon(Icons.upload_file),
-                  label: Text('Select ${_selectedContentType.capitalize()}'),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: _primary.withOpacity(0.3),
+                      width: 1.4,
+                      style: BorderStyle.solid,
+                    ),
+                    color: _primary.withOpacity(0.04),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: () {
+                        switch (_selectedContentType) {
+                          case 'image':
+                            _pickImage();
+                            break;
+                          case 'video':
+                            _pickVideo();
+                            break;
+                          case 'file':
+                            _pickFile();
+                            break;
+                          default:
+                            break;
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 18, horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.upload_file, color: _primary),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Select ${_selectedContentType[0].toUpperCase()}${_selectedContentType.substring(1)}',
+                              style: const TextStyle(
+                                color: _primary,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
                 if (_selectedFileName != null) ...[
-                  const SizedBox(height: 8),
-                  Card(
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
                     child: ListTile(
-                      leading: const Icon(Icons.check_circle, color: Colors.green),
-                      title: Text(_selectedFileName!),
+                      contentPadding: EdgeInsets.zero,
+                      leading: Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE7F6EC),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.check_circle,
+                            color: Color(0xFF2E7D32), size: 22),
+                      ),
+                      title: Text(
+                        _selectedFileName!,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13.5,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       trailing: IconButton(
-                        icon: const Icon(Icons.close),
+                        icon: Icon(Icons.close, color: Colors.grey[500]),
                         onPressed: () {
                           setState(() {
                             _selectedFilePath = null;
@@ -209,47 +394,110 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     ),
                   ),
                 ],
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
               ],
 
               // Content Text Field
-              TextFormField(
-                controller: _contentController,
-                maxLines: 5,
-                decoration: InputDecoration(
-                  labelText: _selectedContentType == 'text' 
-                      ? 'Post Content' 
-                      : 'Description (optional)',
-                  border: const OutlineInputBorder(),
-                  hintText: _selectedContentType == 'text'
-                      ? 'What would you like to share?'
-                      : 'Add a description...',
+              _sectionLabel(_selectedContentType == 'text'
+                  ? 'Post Content'
+                  : 'Description'),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                validator: (value) {
-                  if (_selectedContentType == 'text' && 
-                      (value == null || value.trim().isEmpty)) {
-                    return 'Please enter content for your post';
-                  }
-                  return null;
-                },
+                child: TextFormField(
+                  controller: _contentController,
+                  maxLines: 5,
+                  decoration: InputDecoration(
+                    hintText: _selectedContentType == 'text'
+                        ? 'What would you like to share?'
+                        : 'Add a description...',
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    contentPadding: const EdgeInsets.all(16),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: _primary, width: 1.8),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide:
+                          const BorderSide(color: Color(0xFFC62828), width: 1.4),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (_selectedContentType == 'text' &&
+                        (value == null || value.trim().isEmpty)) {
+                      return 'Please enter content for your post';
+                    }
+                    return null;
+                  },
+                ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
 
               // Submit Button
-              ElevatedButton(
-                onPressed: _isUploading ? null : _createPost,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: Colors.deepPurple,
-                  foregroundColor: Colors.white,
+              Container(
+                height: 54,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: const LinearGradient(
+                    colors: [_primary, Color(0xFF7C5CE0)],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: _primary.withOpacity(0.4),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
                 ),
-                child: _isUploading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        'Create Post',
-                        style: TextStyle(fontSize: 16),
-                      ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: _isUploading ? null : _createPost,
+                    child: Center(
+                      child: _isUploading
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.6,
+                              ),
+                            )
+                          : const Text(
+                              'Create Post',
+                              style: TextStyle(
+                                fontSize: 16.5,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                                letterSpacing: 0.4,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
               ),
+              const SizedBox(height: 12),
             ],
           ),
         ),
